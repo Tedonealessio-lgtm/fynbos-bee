@@ -1,0 +1,420 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C89B154D2FAD35B80095E4B0 /* ZoneSceneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89B154C2FAD35B80095E4B0 /* ZoneSceneView.swift */; };
+		C89B15582FAD3F740095E4B0 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89B15572FAD3F740095E4B0 /* AudioManager.swift */; };
+		C89B15742FAD4ACD0095E4B0 /* honeycollect.m4a in Resources */ = {isa = PBXBuildFile; fileRef = C89B15732FAD4ACD0095E4B0 /* honeycollect.m4a */; };
+		C89B15762FAD4AE30095E4B0 /* eventalert.m4a in Resources */ = {isa = PBXBuildFile; fileRef = C89B15752FAD4AE30095E4B0 /* eventalert.m4a */; };
+		C89B15782FAD4AF50095E4B0 /* beesloop.m4a in Resources */ = {isa = PBXBuildFile; fileRef = C89B15772FAD4AF50095E4B0 /* beesloop.m4a */; };
+		C8E59CD32F9AD520007E3DBF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C86A279B2F9AD15C009092AF /* ContentView.swift */; };
+		C8E59CD42F9AD5DC007E3DBF /* FynbosBeeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C86A279C2F9AD164009092AF /* FynbosBeeApp.swift */; };
+		C8E59CD52F9ADA78007E3DBF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C86A279A2F9AD152009092AF /* Assets.xcassets */; };
+		C8E59CDB2FAD2558007E3DBF /* Zone.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E59CDA2FAD2558007E3DBF /* Zone.swift */; };
+		C8E59CDD2FAD2632007E3DBF /* Hive.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E59CDC2FAD2632007E3DBF /* Hive.swift */; };
+		C8E59CDF2FAD2693007E3DBF /* GameEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E59CDE2FAD2693007E3DBF /* GameEvent.swift */; };
+		C8E59CE12FAD27A9007E3DBF /* GameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E59CE02FAD27A9007E3DBF /* GameViewModel.swift */; };
+		C8E59CE32FAD2AC7007E3DBF /* ZoneDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E59CE22FAD2AC7007E3DBF /* ZoneDetailView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		C86A279A2F9AD152009092AF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C86A279B2F9AD15C009092AF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C86A279C2F9AD164009092AF /* FynbosBeeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FynbosBeeApp.swift; sourceTree = "<group>"; };
+		C86A4FC02F98016A00E7E7FC /* FynbosBee.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FynbosBee.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C89B154C2FAD35B80095E4B0 /* ZoneSceneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoneSceneView.swift; sourceTree = "<group>"; };
+		C89B15572FAD3F740095E4B0 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
+		C89B15732FAD4ACD0095E4B0 /* honeycollect.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = honeycollect.m4a; sourceTree = "<group>"; };
+		C89B15752FAD4AE30095E4B0 /* eventalert.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = eventalert.m4a; sourceTree = "<group>"; };
+		C89B15772FAD4AF50095E4B0 /* beesloop.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = beesloop.m4a; sourceTree = "<group>"; };
+		C8E59CDA2FAD2558007E3DBF /* Zone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Zone.swift; sourceTree = "<group>"; };
+		C8E59CDC2FAD2632007E3DBF /* Hive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hive.swift; sourceTree = "<group>"; };
+		C8E59CDE2FAD2693007E3DBF /* GameEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameEvent.swift; sourceTree = "<group>"; };
+		C8E59CE02FAD27A9007E3DBF /* GameViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewModel.swift; sourceTree = "<group>"; };
+		C8E59CE22FAD2AC7007E3DBF /* ZoneDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoneDetailView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C86A4FBD2F98016A00E7E7FC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C86A4FB72F98016A00E7E7FC = {
+			isa = PBXGroup;
+			children = (
+				C89B154E2FAD3DE70095E4B0 /* Audio */,
+				C8E59CD92FAD24B0007E3DBF /* Helpers */,
+				C8E59CD82FAD24A0007E3DBF /* Views */,
+				C8E59CD72FAD248C007E3DBF /* ViewModel */,
+				C8E59CD62FAD2468007E3DBF /* Models */,
+				C86A279A2F9AD152009092AF /* Assets.xcassets */,
+				C86A279B2F9AD15C009092AF /* ContentView.swift */,
+				C86A279C2F9AD164009092AF /* FynbosBeeApp.swift */,
+				C86A4FC12F98016A00E7E7FC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C86A4FC12F98016A00E7E7FC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C86A4FC02F98016A00E7E7FC /* FynbosBee.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C89B154E2FAD3DE70095E4B0 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				C89B15732FAD4ACD0095E4B0 /* honeycollect.m4a */,
+				C89B15752FAD4AE30095E4B0 /* eventalert.m4a */,
+				C89B15772FAD4AF50095E4B0 /* beesloop.m4a */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		C8E59CD62FAD2468007E3DBF /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C8E59CDA2FAD2558007E3DBF /* Zone.swift */,
+				C8E59CDC2FAD2632007E3DBF /* Hive.swift */,
+				C8E59CDE2FAD2693007E3DBF /* GameEvent.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C8E59CD72FAD248C007E3DBF /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				C8E59CE02FAD27A9007E3DBF /* GameViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		C8E59CD82FAD24A0007E3DBF /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C8E59CE22FAD2AC7007E3DBF /* ZoneDetailView.swift */,
+				C89B154C2FAD35B80095E4B0 /* ZoneSceneView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C8E59CD92FAD24B0007E3DBF /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				C89B15572FAD3F740095E4B0 /* AudioManager.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C86A4FBF2F98016A00E7E7FC /* FynbosBee */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C86A4FCB2F98016C00E7E7FC /* Build configuration list for PBXNativeTarget "FynbosBee" */;
+			buildPhases = (
+				C86A4FBC2F98016A00E7E7FC /* Sources */,
+				C86A4FBD2F98016A00E7E7FC /* Frameworks */,
+				C86A4FBE2F98016A00E7E7FC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FynbosBee;
+			packageProductDependencies = (
+			);
+			productName = FynbosBee;
+			productReference = C86A4FC02F98016A00E7E7FC /* FynbosBee.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C86A4FB82F98016A00E7E7FC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					C86A4FBF2F98016A00E7E7FC = {
+						CreatedOnToolsVersion = 26.2;
+					};
+				};
+			};
+			buildConfigurationList = C86A4FBB2F98016A00E7E7FC /* Build configuration list for PBXProject "FynbosBee" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C86A4FB72F98016A00E7E7FC;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = C86A4FC12F98016A00E7E7FC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C86A4FBF2F98016A00E7E7FC /* FynbosBee */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C86A4FBE2F98016A00E7E7FC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C8E59CD52F9ADA78007E3DBF /* Assets.xcassets in Resources */,
+				C89B15782FAD4AF50095E4B0 /* beesloop.m4a in Resources */,
+				C89B15762FAD4AE30095E4B0 /* eventalert.m4a in Resources */,
+				C89B15742FAD4ACD0095E4B0 /* honeycollect.m4a in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C86A4FBC2F98016A00E7E7FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C8E59CE12FAD27A9007E3DBF /* GameViewModel.swift in Sources */,
+				C8E59CD32F9AD520007E3DBF /* ContentView.swift in Sources */,
+				C8E59CDD2FAD2632007E3DBF /* Hive.swift in Sources */,
+				C89B154D2FAD35B80095E4B0 /* ZoneSceneView.swift in Sources */,
+				C8E59CD42F9AD5DC007E3DBF /* FynbosBeeApp.swift in Sources */,
+				C8E59CE32FAD2AC7007E3DBF /* ZoneDetailView.swift in Sources */,
+				C89B15582FAD3F740095E4B0 /* AudioManager.swift in Sources */,
+				C8E59CDF2FAD2693007E3DBF /* GameEvent.swift in Sources */,
+				C8E59CDB2FAD2558007E3DBF /* Zone.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		C86A4FC92F98016C00E7E7FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 5MKMM7Y82R;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C86A4FCA2F98016C00E7E7FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 5MKMM7Y82R;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C86A4FCC2F98016C00E7E7FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5MKMM7Y82R;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tedonealessio.FynbosBee2;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C86A4FCD2F98016C00E7E7FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5MKMM7Y82R;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tedonealessio.FynbosBee2;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C86A4FBB2F98016A00E7E7FC /* Build configuration list for PBXProject "FynbosBee" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C86A4FC92F98016C00E7E7FC /* Debug */,
+				C86A4FCA2F98016C00E7E7FC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C86A4FCB2F98016C00E7E7FC /* Build configuration list for PBXNativeTarget "FynbosBee" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C86A4FCC2F98016C00E7E7FC /* Debug */,
+				C86A4FCD2F98016C00E7E7FC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C86A4FB82F98016A00E7E7FC /* Project object */;
+}
