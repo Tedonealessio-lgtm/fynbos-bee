@@ -2,6 +2,9 @@ import SwiftUI
 import Combine
 
 struct ContentView: View {
+    
+    @State private var showHiveInterior = false
+    @State private var selectedHiveForInterior: Hive? = nil
 
     @StateObject private var vm = GameViewModel()
 
@@ -60,6 +63,17 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showZoneDetail) { zoneDetailView }
         .sheet(isPresented: $showShop) { ShopView(vm: vm) }
+        .sheet(isPresented: $showHiveInterior) {
+            if let hive = selectedHiveForInterior,
+               let zoneID = hive.zoneID,
+               let zone = vm.zones.first(where: { $0.id == zoneID }) {
+                HiveInteriorView(
+                    hive: hive,
+                    zone: zone,
+                    onClose: { showHiveInterior = false }
+                )
+            }
+        }
     }
 
     // MARK: - Header
@@ -377,6 +391,12 @@ struct ContentView: View {
                         HStack(spacing: 8) {
                             Button("🍯 Raccogli") { vm.collectHoney() }
                                 .buttonStyle(.borderedProminent).tint(.orange)
+                            Button("🏠 Interno") {
+                                selectedHiveForInterior = hive
+                                showHiveInterior = true
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.brown)
                             Button("🔓 Libera") { vm.freeHive(index: index) }
                                 .buttonStyle(.bordered)
                             Button("🐝 +Api") { vm.upgradeHive(index: index) }
