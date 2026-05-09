@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var mapOffset: CGSize = .zero
     @State private var isZooming = false
     @State private var showZoneDetail = false
+    @State private var showShop = false
 
     let timer = Timer.publish(every: 1.5, on: .main, in: .common).autoconnect()
 
@@ -47,7 +48,6 @@ struct ContentView: View {
                 }
             }
 
-            // Evento di gioco
             if let event = vm.activeEvent {
                 eventOverlay(event: event)
             }
@@ -58,29 +58,68 @@ struct ContentView: View {
                 beeFlight = beeFlight == 0 ? 1 : 0
             }
         }
-        .sheet(isPresented: $showZoneDetail) {
-            zoneDetailView
-        }
+        .sheet(isPresented: $showZoneDetail) { zoneDetailView }
+        .sheet(isPresented: $showShop) { ShopView(vm: vm) }
     }
 
     // MARK: - Header
     var headerCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("🍯 Fynbos Bee")
-                .font(.system(size: 30, weight: .bold, design: .serif))
-            Text("Beekeeping simulator nel paesaggio fynbos sudafricano.")
-                .font(.subheadline).foregroundStyle(.secondary)
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("🍯 Fynbos Bee")
+                        .font(.system(size: 28, weight: .bold, design: .serif))
+                    Text("Grootbos Nature Reserve 🇿🇦")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                // Badge stagione
+                VStack(spacing: 2) {
+                    Text(vm.season.emoji)
+                        .font(.title2)
+                    Text(vm.season.rawValue)
+                        .font(.caption2.bold())
+                        .foregroundStyle(.secondary)
+                }
+                .padding(10)
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+
             HStack {
                 Label(
-                    vm.fireActive ? "Fire bloom attivo" : "Stagione normale",
+                    vm.fireActive ? "Fire bloom attivo" : vm.season.description,
                     systemImage: vm.fireActive ? "flame.fill" : "leaf.fill"
                 )
+                .font(.caption)
                 .foregroundStyle(vm.fireActive ? .orange : .green)
+
                 Spacer()
+
                 Text("Giorno \(vm.day)")
                     .font(.caption.bold())
-                    .padding(.horizontal, 10).padding(.vertical, 6)
+                    .padding(.horizontal, 10).padding(.vertical, 5)
                     .background(.thinMaterial).clipShape(Capsule())
+            }
+
+            // Barra ispezione
+            if vm.inspectionNeeded {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                    Text("Ispezione necessaria!")
+                        .font(.caption.bold())
+                        .foregroundStyle(.orange)
+                    Spacer()
+                    Button("Ispeziona ora") { vm.performInspection() }
+                        .font(.caption.bold())
+                        .buttonStyle(.borderedProminent)
+                        .tint(.orange)
+                }
+                .padding(10)
+                .background(Color.orange.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
         .padding()
@@ -92,15 +131,17 @@ struct ContentView: View {
     // MARK: - Stats
     var statsRow: some View {
         HStack(spacing: 12) {
-            statCard(title: "Miele (kg)", value: "\(Int(vm.honey))", icon: "drop.fill")
-            statCard(title: "Monete", value: "\(vm.coins)", icon: "eurosign.circle.fill")
-            statCard(title: "Alveari", value: "\(vm.hives.count)", icon: "shippingbox.fill")
+            statCard(title: "Miele (kg)", value: "\(Int(vm.honey))", icon: "drop.fill", color: .yellow)
+            statCard(title: "Monete", value: "\(vm.coins)", icon: "eurosign.circle.fill", color: .orange)
+            statCard(title: "Alveari", value: "\(vm.hives.count)", icon: "house.fill", color: .brown)
         }
     }
 
-    func statCard(title: String, value: String, icon: String) -> some View {
+    func statCard(title: String, value: String, icon: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Image(systemName: icon)
+                .foregroundStyle(color)
+                .font(.title3)
             Text(value).font(.title3.bold())
             Text(title).font(.caption).foregroundStyle(.secondary)
         }
@@ -113,9 +154,16 @@ struct ContentView: View {
     // MARK: - Mappa
     var mapSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Mappa della riserva").font(.title3.bold())
-            Text("Zona selezionata: \(vm.selectedZoneName)")
-                .font(.subheadline).foregroundStyle(.secondary)
+            HStack {
+                Text("🗺️ Mappa della riserva")
+                    .font(.title3.bold())
+                Spacer()
+                Text(vm.selectedZoneName)
+                    .font(.caption.bold())
+                    .padding(.horizontal, 8).padding(.vertical, 4)
+                    .background(.thinMaterial)
+                    .clipShape(Capsule())
+            }
 
             ZStack {
                 Image("fynbos_map")
@@ -175,7 +223,7 @@ struct ContentView: View {
     var habitatCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let zone = vm.selectedZone {
-                Text("Habitat").font(.title3.bold())
+                Text("🌿 Habitat").font(.title3.bold())
                 VStack(alignment: .leading, spacing: 12) {
                     Image(zone.imageName)
                         .resizable().scaledToFit()
@@ -196,14 +244,15 @@ struct ContentView: View {
                     Text(zone.habitatDescription).font(.subheadline)
                     Text("Fauna: \(zone.faunaNotes)").font(.caption).foregroundStyle(.secondary)
 
-                    Button("Entra nella zona") { showZoneDetail = true }
+                    Button("Entra nella zona →") { showZoneDetail = true }
                         .buttonStyle(.borderedProminent)
+                        .tint(.green)
                 }
                 .padding()
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 18))
-                .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.green, lineWidth: 1.5))
+                .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.green.opacity(0.5), lineWidth: 1.5))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -212,44 +261,45 @@ struct ContentView: View {
     // MARK: - Zone
     var zonesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Zone botaniche").font(.title3.bold())
+            Text("🌺 Zone botaniche").font(.title3.bold())
 
             ForEach(vm.zones) { zone in
                 if zone.isUnlocked {
                     Button { vm.assignHive(to: zone) } label: {
-                        HStack(alignment: .top, spacing: 12) {
+                        HStack(spacing: 12) {
                             Circle().fill(.green.opacity(0.7))
-                                .frame(width: 18, height: 18).padding(.top, 4)
-                            VStack(alignment: .leading, spacing: 6) {
+                                .frame(width: 14, height: 14)
+                            VStack(alignment: .leading, spacing: 4) {
                                 Text(zone.name).font(.headline)
                                 Text("Resa: \(String(format: "%.1f", zone.yieldPerTick)) kg/turno")
                                     .font(.caption).foregroundStyle(.secondary)
-                                Text("Disponibile").font(.caption.bold()).foregroundStyle(.green)
                             }
                             Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
                         .padding()
                         .background(.regularMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 18))
                         .overlay(
                             RoundedRectangle(cornerRadius: 18)
-                                .stroke(vm.selectedZoneName == zone.name ? .green : .clear, lineWidth: 2)
+                                .stroke(vm.selectedZoneName == zone.name ? Color.green : .clear, lineWidth: 2)
                         )
                     }
                     .buttonStyle(.plain)
                 } else {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            Circle().fill(.gray.opacity(0.5)).frame(width: 18, height: 18)
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(zone.name).font(.headline).foregroundStyle(.secondary)
-                                Text("Bloccata").font(.caption.bold()).foregroundStyle(.orange)
-                                Text("Costo: \(zone.unlockCost) monete").font(.caption).foregroundStyle(.secondary)
-                            }
+                            Circle().fill(.gray.opacity(0.4)).frame(width: 14, height: 14)
+                            Text(zone.name).font(.headline).foregroundStyle(.secondary)
                             Spacer()
+                            Text("🔒 \(zone.unlockCost) monete")
+                                .font(.caption.bold()).foregroundStyle(.orange)
                         }
-                        Button("Sblocca (\(zone.unlockCost) monete)") { vm.unlockZone(zone) }
+                        Button("Sblocca zona") { vm.unlockZone(zone) }
                             .buttonStyle(.borderedProminent)
+                            .tint(.orange)
                             .disabled(vm.coins < zone.unlockCost)
                     }
                     .padding()
@@ -263,13 +313,12 @@ struct ContentView: View {
     // MARK: - Alveari
     var hivesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("I tuoi alveari").font(.title3.bold())
+            Text("🏡 I tuoi alveari").font(.title3.bold())
 
             ForEach(vm.hives.indices, id: \.self) { index in
                 let hive = vm.hives[index]
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 10) {
 
-                    // Header
                     HStack {
                         Text(hive.name).font(.headline)
                         Spacer()
@@ -279,79 +328,59 @@ struct ContentView: View {
                             .background(.thinMaterial).clipShape(Capsule())
                     }
 
-                    // Regina status
+                    // Regina
                     HStack(spacing: 8) {
-                        Text(hive.queen.statusEmoji)
-                            .font(.title3)
+                        Text(hive.queen.statusEmoji).font(.title3)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(hive.queen.statusDescription)
                                 .font(.caption.bold())
                                 .foregroundStyle(queenColor(hive.queen.status))
-                            Text("Età regina: \(hive.queen.age) giorni")
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
+                            Text("Età: \(hive.queen.age) giorni")
+                                .font(.caption2).foregroundStyle(.secondary)
                         }
                         Spacer()
-
-                        // Barra salute regina
-                        VStack(alignment: .trailing, spacing: 2) {
-                            Text("Salute")
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                            GeometryReader { geo in
-                                ZStack(alignment: .leading) {
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .fill(Color.gray.opacity(0.3))
-                                        .frame(height: 6)
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .fill(queenColor(hive.queen.status))
-                                        .frame(width: geo.size.width * hive.queen.health, height: 6)
-                                }
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(Color.gray.opacity(0.3)).frame(height: 6)
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(queenColor(hive.queen.status))
+                                    .frame(width: geo.size.width * hive.queen.health, height: 6)
                             }
-                            .frame(width: 60, height: 6)
                         }
+                        .frame(width: 60, height: 6)
                     }
                     .padding(10)
-                    .background(queenColor(hive.queen.status).opacity(0.1))
+                    .background(queenColor(hive.queen.status).opacity(0.08))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                    // Api e produzione
                     HStack {
                         Label("\(hive.bees) api", systemImage: "ant.fill")
                             .font(.caption).foregroundStyle(.secondary)
                         Spacer()
                         if let zoneID = hive.zoneID,
                            let zone = vm.zones.first(where: { $0.id == zoneID }) {
-                            let prod = zone.yieldPerTick * Double(hive.bees) / 100 * hive.productionMultiplier
+                            let prod = zone.yieldPerTick * Double(hive.bees) / 100 * hive.productionMultiplier * vm.season.productionMultiplier
                             Text(String(format: "%.2f kg/tick", prod))
                                 .font(.caption.bold()).foregroundStyle(.green)
-                        } else {
-                            Text("0.00 kg/tick")
-                                .font(.caption.bold()).foregroundStyle(.secondary)
                         }
                     }
 
-                    // Bottoni azione
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             Button("🍯 Raccogli") { vm.collectHoney() }
-                                .buttonStyle(.borderedProminent)
-                                .tint(.orange)
-
+                                .buttonStyle(.borderedProminent).tint(.orange)
                             Button("🔓 Libera") { vm.freeHive(index: index) }
                                 .buttonStyle(.bordered)
-
-                            Button("🐝 +Api (10)") { vm.upgradeHive(index: index) }
+                            Button("🐝 +Api") { vm.upgradeHive(index: index) }
                                 .buttonStyle(.bordered)
-
                             if hive.queen.status != .healthy {
-                                Button("👑 Nuova Regina (100)") {
-                                    vm.replaceQueen(hiveIndex: index)
-                                }
-                                .buttonStyle(.borderedProminent)
-                                .tint(queenColor(hive.queen.status))
+                                Button("👑 Nuova Regina") { vm.replaceQueen(hiveIndex: index) }
+                                    .buttonStyle(.borderedProminent)
+                                    .tint(queenColor(hive.queen.status))
                             }
                         }
+                        .font(.caption.bold())
                     }
                 }
                 .padding()
@@ -359,11 +388,11 @@ struct ContentView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 18))
                 .overlay(
                     RoundedRectangle(cornerRadius: 18)
-                        .stroke(vm.selectedHiveID == hive.id ? .blue : .clear, lineWidth: 3)
+                        .stroke(vm.selectedHiveID == hive.id ? Color.blue : .clear, lineWidth: 2)
                 )
                 .onTapGesture {
                     vm.selectedHiveID = hive.id
-                    vm.log.insert("\(hive.name) selezionato. Ora scegli una zona.", at: 0)
+                    vm.log.insert("\(hive.name) selezionato.", at: 0)
                 }
             }
         }
@@ -378,75 +407,71 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - Shop
-    @State private var showShop = false
-
+    // MARK: - Shop Section
     var shopSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Gestione").font(.title3.bold())
-
-            // Avviso ispezione
-            if vm.inspectionNeeded {
-                HStack {
-                    Text("🔍 Ispezione necessaria!")
-                        .font(.subheadline.bold())
-                        .foregroundStyle(.orange)
-                    Spacer()
-                    Button("Ispeziona") { vm.performInspection() }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.orange)
-                }
-                .padding()
-                .background(Color.orange.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-                .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.orange, lineWidth: 1))
-            }
-
-            // Stagione
-            HStack {
-                Text("\(vm.season.emoji) \(vm.season.rawValue)")
-                    .font(.subheadline.bold())
-                Spacer()
-                Text(vm.season.description)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .padding()
-            .background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            Text("⚙️ Gestione").font(.title3.bold())
 
             HStack(spacing: 12) {
-                Button("🛒 Shop") { showShop = true }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.orange)
+                Button { showShop = true } label: {
+                    Label("Shop", systemImage: "cart.fill")
+                        .font(.subheadline.bold())
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.orange)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
 
-                Button("Compra alveare (20)") { vm.buyHive() }
-                    .buttonStyle(.borderedProminent)
-
-                Button("Vendi miele") { vm.sellHoney() }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.green)
+                Button { vm.buyHive() } label: {
+                    Label("Nuovo alveare", systemImage: "plus.circle.fill")
+                        .font(.subheadline.bold())
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.brown.opacity(0.8))
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
             }
 
-            Button(vm.fireActive ? "🔥 Fire bloom attivo" : "Attiva incendio controllato") {
-                vm.activateFire()
+            HStack(spacing: 12) {
+                Button { vm.sellHoney() } label: {
+                    Label("Vendi miele", systemImage: "dollarsign.circle.fill")
+                        .font(.subheadline.bold())
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.green.opacity(0.8))
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+
+                Button { vm.activateFire() } label: {
+                    Label(vm.fireActive ? "Attivo" : "Incendio", systemImage: "flame.fill")
+                        .font(.subheadline.bold())
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(vm.fireActive ? Color.gray : Color.red.opacity(0.7))
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+                .disabled(vm.fireActive)
             }
-            .buttonStyle(.bordered)
-            .disabled(vm.fireActive)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .sheet(isPresented: $showShop) {
-            ShopView(vm: vm)
-        }
     }
 
     // MARK: - Log
     var logSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Registro").font(.title3.bold())
-            ForEach(Array(vm.log.prefix(6).enumerated()), id: \.offset) { _, item in
-                Text("• \(item)").font(.subheadline)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            Text("📋 Registro").font(.title3.bold())
+            ForEach(Array(vm.log.prefix(8).enumerated()), id: \.offset) { _, item in
+                HStack(alignment: .top, spacing: 8) {
+                    Circle().fill(Color.green.opacity(0.5))
+                        .frame(width: 6, height: 6)
+                        .padding(.top, 6)
+                    Text(item).font(.subheadline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
         }
         .padding()
@@ -454,19 +479,15 @@ struct ContentView: View {
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 18))
     }
-    
+
     // MARK: - Zone Detail
-        var zoneDetailView: some View {
-            Group {
-                if let zone = vm.selectedZone {
-                    ZoneDetailView(
-                        zone: zone,
-                        hives: vm.hives,
-                        onClose: { showZoneDetail = false }
-                    )
-                }
+    var zoneDetailView: some View {
+        Group {
+            if let zone = vm.selectedZone {
+                ZoneDetailView(zone: zone, hives: vm.hives, onClose: { showZoneDetail = false })
             }
         }
+    }
 
     // MARK: - Event Overlay
     func eventOverlay(event: GameEvent) -> some View {
@@ -474,20 +495,22 @@ struct ContentView: View {
             Color.black.opacity(0.5).ignoresSafeArea()
             VStack(spacing: 20) {
                 Text(event.title).font(.title.bold()).foregroundStyle(.white)
-                Text(event.description).font(.body).foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+                Text(event.description).font(.body).foregroundStyle(.white.opacity(0.9))
                     .multilineTextAlignment(.center).padding(.horizontal)
 
-                HStack(spacing: 20) {
-                    Button("Gestisci") { vm.resolveEvent(accept: true) }
-                        .buttonStyle(.borderedProminent)
-                    Button("Ignora") { vm.resolveEvent(accept: false) }
+                HStack(spacing: 16) {
+                    Button("✅ Gestisci") { vm.resolveEvent(accept: true) }
+                        .buttonStyle(.borderedProminent).tint(.green)
+                    Button("❌ Ignora") { vm.resolveEvent(accept: false) }
                         .buttonStyle(.bordered).tint(.white)
                 }
             }
             .padding(30)
-            .background(.ultraThinMaterial)
+            .background(Color(red: 0.94, green: 0.93, blue: 0.86))
             .clipShape(RoundedRectangle(cornerRadius: 24))
-            .padding()
+            .shadow(radius: 20)
+            .padding(24)
         }
     }
 }
