@@ -54,20 +54,40 @@ class GameViewModel: ObservableObject {
 
     @Published var zones: [Zone] = [
         Zone(id: UUID(), name: "Fynbos comune", imageName: "fynbos_common",
-             habitatDescription: "Vegetazione fynbos aperta, ricca di piccoli arbusti nettariferi.",
+             habitatDescription: "Vegetazione fynbos aperta, ricca di piccoli arbusti nettariferi. La zona più accessibile di Grootbos.",
              yieldPerTick: 1.0, isUnlocked: true, unlockCost: 0,
              plantName: "Restio, Leucadendron", faunaNotes: "Sunbird, Cape sugarbird",
              honeyType: "Wild Fynbos Honey"),
+
         Zone(id: UUID(), name: "Erica irregularis", imageName: "erica_field",
-             habitatDescription: "Area dominata da eriche in fiore.",
-             yieldPerTick: 1.5, isUnlocked: true, unlockCost: 20,
+             habitatDescription: "Area dominata da eriche in fiore con alta concentrazione di nettare. Ottima per la produzione primaverile.",
+             yieldPerTick: 1.5, isUnlocked: false, unlockCost: 50,
              plantName: "Erica irregularis", faunaNotes: "Orange-breasted sunbird",
              honeyType: "Erica Honey"),
+
         Zone(id: UUID(), name: "Protea", imageName: "fire_bloom",
-             habitatDescription: "Zona dominata da protee del fynbos.",
-             yieldPerTick: 2.0, isUnlocked: false, unlockCost: 60,
+             habitatDescription: "Zona dominata da protee del fynbos. I grandi fiori attirano sunbird e coleotteri impollinatori.",
+             yieldPerTick: 2.0, isUnlocked: false, unlockCost: 150,
              plantName: "Protea cynaroides", faunaNotes: "Cape sugarbird, beetles",
-             honeyType: "Protea Honey")
+             honeyType: "Protea Honey"),
+
+        Zone(id: UUID(), name: "Milkwood Forest", imageName: "fynbos_common",
+             habitatDescription: "Foresta costiera di milkwood — una delle poche rimaste in Sudafrica. Microclima umido, fioritura tutto l'anno.",
+             yieldPerTick: 2.5, isUnlocked: false, unlockCost: 300,
+             plantName: "Sideroxylon inerme", faunaNotes: "Vervet monkey, bushbuck",
+             honeyType: "Milkwood Forest Honey"),
+
+        Zone(id: UUID(), name: "Coastal Fynbos", imageName: "erica_field",
+             habitatDescription: "Fynbos costiero con vista sull'oceano. Vento salino e fiori rari rendono il miele unico al mondo.",
+             yieldPerTick: 3.0, isUnlocked: false, unlockCost: 500,
+             plantName: "Brunia, Phylica", faunaNotes: "African penguin, whale watching",
+             honeyType: "Coastal Reserve Honey"),
+
+        Zone(id: UUID(), name: "Restio Wetlands", imageName: "fire_bloom",
+             habitatDescription: "Zone umide con restio — piante antichissime del fynbos. Produzione rara e pregiata.",
+             yieldPerTick: 3.5, isUnlocked: false, unlockCost: 750,
+             plantName: "Restio tetraphyllus", faunaNotes: "Cape clawless otter, frogs",
+             honeyType: "Wetlands Reserve Honey")
     ]
 
     // MARK: - Eventi di gioco
@@ -78,6 +98,10 @@ class GameViewModel: ObservableObject {
     @Published var selectedHiveID: UUID? = nil
     @Published var unlockMessage: String? = nil
     @Published var lastUnlockedZoneID: UUID? = nil
+    
+    @Published var playerLevel: Int = 1
+    @Published var playerTitle: String = "🌱 Principiante"
+    @Published var totalHoneyProduced: Double = 0
     
     @Published var season: Season = .spring
     @Published var equipment: [Equipment] = [
@@ -117,6 +141,8 @@ class GameViewModel: ObservableObject {
         NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)
             .sink { [weak self] _ in self?.saveGame() }
             .store(in: &cancellables)
+        
+        NotificationManager.shared.requestPermission()
     }
 
     // MARK: - Tick principale
@@ -142,6 +168,8 @@ class GameViewModel: ObservableObject {
             let baseProd = zone.yieldPerTick * Double(hives[i].bees) / 100
             let actualProd = baseProd * hives[i].productionMultiplier * season.productionMultiplier
             honey += actualProd
+            totalHoneyProduced += actualProd
+            updatePlayerLevel()
 
             // Avvisi regina
             if hives[i].queen.status == .aging && hives[i].queen.age % 50 == 0 {
@@ -155,6 +183,17 @@ class GameViewModel: ObservableObject {
                 if hives[i].queen.age % 20 == 0 {
                     addLog("💀 \(hives[i].name): regina morta! Colonia in pericolo!")
                 }
+            }
+            
+            // Notifiche
+            if inspectionNeeded {
+                NotificationManager.shared.scheduleInspectionReminder()
+            }
+            for hive in hives where hive.queen.status == .aging {
+                NotificationManager.shared.scheduleQueenWarning(hiveName: hive.name)
+            }
+            if season == .winter {
+                NotificationManager.shared.scheduleWinterWarning()
             }
 
             // Inverno — api diminuiscono senza sciroppo
@@ -374,6 +413,29 @@ class GameViewModel: ObservableObject {
         }
     }
     
+    func updatePlayerLevel() {
+        switch totalHoneyProduced {
+        case 0..<100:
+            playerLevel = 1
+            playerTitle = "🌱 Principiante"
+        case 100..<500:
+            playerLevel = 2
+            playerTitle = "🐝 Apprendista"
+        case 500..<1500:
+            playerLevel = 3
+            playerTitle = "🍯 Apicoltore"
+        case 1500..<5000:
+            playerLevel = 4
+            playerTitle = "⭐ Apicoltore Esperto"
+        case 5000..<15000:
+            playerLevel = 5
+            playerTitle = "🏆 Maestro Apicoltore"
+        default:
+            playerLevel = 6
+            playerTitle = "👑 Leggenda di Grootbos"
+        }
+    }
+    
     private func addLog(_ message: String) {
         log.insert(message, at: 0)
         if log.count > 20 { log.removeLast() }
@@ -415,7 +477,13 @@ class GameViewModel: ObservableObject {
         }
         if let zonesData = UserDefaults.standard.data(forKey: "zones"),
            let savedZones = try? JSONDecoder().decode([Zone].self, from: zonesData) {
-            zones = savedZones
+            // Mantieni solo lo stato isUnlocked delle zone salvate
+            // ma usa sempre le zone aggiornate dal codice
+            for i in zones.indices {
+                if let saved = savedZones.first(where: { $0.name == zones[i].name }) {
+                    zones[i].isUnlocked = saved.isUnlocked
+                }
+            }
         }
         if let logData = UserDefaults.standard.data(forKey: "log"),
            let savedLog = try? JSONDecoder().decode([String].self, from: logData) {

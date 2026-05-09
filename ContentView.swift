@@ -96,6 +96,13 @@ struct ContentView: View {
                 .foregroundStyle(vm.fireActive ? .orange : .green)
 
                 Spacer()
+                
+                // Badge livello
+                Text(vm.playerTitle)
+                    .font(.caption.bold())
+                    .padding(.horizontal, 10).padding(.vertical, 5)
+                    .background(Color.yellow.opacity(0.3))
+                    .clipShape(Capsule())
 
                 Text("Giorno \(vm.day)")
                     .font(.caption.bold())
