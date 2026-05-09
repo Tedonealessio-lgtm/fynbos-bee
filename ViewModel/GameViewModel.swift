@@ -4,6 +4,41 @@ import AVFoundation
 
 @MainActor
 class GameViewModel: ObservableObject {
+    
+    // MARK: - Stagioni
+    enum Season: String, Codable {
+        case spring = "Primavera"
+        case summer = "Estate"
+        case autumn = "Autunno"
+        case winter = "Inverno"
+
+        var emoji: String {
+            switch self {
+            case .spring: return "🌸"
+            case .summer: return "☀️"
+            case .autumn: return "🍂"
+            case .winter: return "❄️"
+            }
+        }
+
+        var productionMultiplier: Double {
+            switch self {
+            case .spring: return 1.5
+            case .summer: return 1.0
+            case .autumn: return 0.7
+            case .winter: return 0.3
+            }
+        }
+
+        var description: String {
+            switch self {
+            case .spring: return "Fioritura massima nel Fynbos"
+            case .summer: return "Caldo — rischio siccità"
+            case .autumn: return "Raccolta finale, prepara l'inverno"
+            case .winter: return "Produzione ridotta, nutri le api"
+            }
+        }
+    }
 
     // MARK: - Stato principale
     @Published var honey: Double = 0
@@ -43,6 +78,19 @@ class GameViewModel: ObservableObject {
     @Published var selectedHiveID: UUID? = nil
     @Published var unlockMessage: String? = nil
     @Published var lastUnlockedZoneID: UUID? = nil
+    
+    @Published var season: Season = .spring
+    @Published var equipment: [Equipment] = [
+        Equipment(type: .smoker),
+        Equipment(type: .gloves),
+        Equipment(type: .suit),
+        Equipment(type: .sugarSyrup),
+        Equipment(type: .oxalicAcid),
+        Equipment(type: .hornetTrap),
+        Equipment(type: .honeySuper)
+    ]
+    @Published var inspectionNeeded: Bool = false
+    @Published var lastInspectionDay: Int = 0
 
     var selectedZone: Zone? {
         zones.first(where: { $0.name == selectedZoneName })
@@ -74,21 +122,72 @@ class GameViewModel: ObservableObject {
     // MARK: - Tick principale
     func tick() {
         day += 1
-        for hive in hives {
-            guard let zoneID = hive.zoneID,
+
+        // Aggiorna stagione ogni 150 giorni
+        updateSeason()
+
+        // Ispezione necessaria ogni 50 giorni
+        if day - lastInspectionDay >= 50 {
+            inspectionNeeded = true
+        }
+
+        for i in hives.indices {
+            hives[i].queen.age += 1
+            hives[i].queen.updateStatus()
+
+            guard let zoneID = hives[i].zoneID,
                   let zone = zones.first(where: { $0.id == zoneID }),
                   zone.isUnlocked else { continue }
-            let production = zone.yieldPerTick * Double(hive.bees) / 100
-            honey += production
+
+            let baseProd = zone.yieldPerTick * Double(hives[i].bees) / 100
+            let actualProd = baseProd * hives[i].productionMultiplier * season.productionMultiplier
+            honey += actualProd
+
+            // Avvisi regina
+            if hives[i].queen.status == .aging && hives[i].queen.age % 50 == 0 {
+                addLog("⚠️ \(hives[i].name): la regina sta invecchiando!")
+            }
+            if hives[i].queen.status == .weak && hives[i].queen.age % 30 == 0 {
+                addLog("🔴 \(hives[i].name): regina debole! Sostituiscila!")
+            }
+            if hives[i].queen.status == .dead {
+                hives[i].bees = max(10, hives[i].bees - 2)
+                if hives[i].queen.age % 20 == 0 {
+                    addLog("💀 \(hives[i].name): regina morta! Colonia in pericolo!")
+                }
+            }
+
+            // Inverno — api diminuiscono senza sciroppo
+            if season == .winter && !hasEquipment(.sugarSyrup) {
+                hives[i].bees = max(10, hives[i].bees - 1)
+                if day % 30 == 0 {
+                    addLog("❄️ \(hives[i].name): api soffrono il freddo! Usa sciroppo!")
+                }
+            }
         }
+
         if day % 150 == 0 { triggerRandomEvent() }
         if fireActive && day % 10 == 0 {
             fireActive = false
             addLog("La fioritura post-incendio è terminata. 🔥")
-            if day % 10 == 0 { saveGame() }
+        }
+        if day % 10 == 0 { saveGame() }
+    }
+
+    func updateSeason() {
+        let cycle = day % 600
+        switch cycle {
+        case 0..<150:   season = .spring
+        case 150..<300: season = .summer
+        case 300..<450: season = .autumn
+        default:        season = .winter
         }
     }
 
+    func hasEquipment(_ type: EquipmentType) -> Bool {
+        equipment.first(where: { $0.type == type })?.quantity ?? 0 > 0
+    }
+    
     // MARK: - Azioni
     func assignHive(to zone: Zone) {
         guard zone.isUnlocked else { addLog("Questa zona è bloccata."); return }
@@ -150,6 +249,17 @@ class GameViewModel: ObservableObject {
         coins -= 10
         hives[index].bees += 20
         addLog("\(hives[index].name): +20 api. 🐝")
+    }
+    
+    func replaceQueen(hiveIndex: Int) {
+        let cost = 100
+        guard coins >= cost else {
+            addLog("Servono 100 monete per una nuova regina.")
+            return
+        }
+        coins -= cost
+        hives[hiveIndex].queen = Queen(age: 0, health: 1.0, status: .healthy)
+        addLog("👑 \(hives[hiveIndex].name): nuova regina installata!")
     }
 
     func freeHive(index: Int) {
@@ -224,6 +334,46 @@ class GameViewModel: ObservableObject {
         addLog("Impatto: \(event.impact > 0 ? "+" : "")\(Int(event.impact * 100))%")
     }
 
+    func buyEquipment(_ type: EquipmentType) {
+        guard let index = equipment.firstIndex(where: { $0.type == type }) else { return }
+        let cost = equipment[index].cost
+        guard coins >= cost else {
+            addLog("Monete insufficienti per \(equipment[index].name).")
+            return
+        }
+        coins -= cost
+        equipment[index].quantity += 1
+        addLog("✅ Acquistato: \(equipment[index].emoji) \(equipment[index].name)!")
+    }
+
+    func performInspection() {
+        guard hasEquipment(.smoker) else {
+            addLog("⚠️ Serve il fumatore per ispezionare! Compralo nello shop.")
+            return
+        }
+        lastInspectionDay = day
+        inspectionNeeded = false
+        addLog("🔍 Ispezione completata! Alveari in buona salute.")
+
+        // Bonus ispezione — trova problemi nascosti
+        for i in hives.indices {
+            if hives[i].hasDisease && hasEquipment(.oxalicAcid) {
+                if let acidIndex = equipment.firstIndex(where: { $0.type == .oxalicAcid }) {
+                    equipment[acidIndex].quantity -= 1
+                }
+                hives[i].hasDisease = false
+                addLog("💊 Varroa trattata in \(hives[i].name)!")
+            }
+            if hives[i].hasHornet && hasEquipment(.hornetTrap) {
+                if let trapIndex = equipment.firstIndex(where: { $0.type == .hornetTrap }) {
+                    equipment[trapIndex].quantity -= 1
+                }
+                hives[i].hasHornet = false
+                addLog("🪤 Calabrone eliminato da \(hives[i].name)!")
+            }
+        }
+    }
+    
     private func addLog(_ message: String) {
         log.insert(message, at: 0)
         if log.count > 20 { log.removeLast() }

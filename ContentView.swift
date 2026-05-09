@@ -268,6 +268,8 @@ struct ContentView: View {
             ForEach(vm.hives.indices, id: \.self) { index in
                 let hive = vm.hives[index]
                 VStack(alignment: .leading, spacing: 8) {
+
+                    // Header
                     HStack {
                         Text(hive.name).font(.headline)
                         Spacer()
@@ -276,20 +278,80 @@ struct ContentView: View {
                             .padding(.horizontal, 8).padding(.vertical, 4)
                             .background(.thinMaterial).clipShape(Capsule())
                     }
-                    Text("Api: \(hive.bees)").font(.caption).foregroundStyle(.secondary)
 
-                    if let zoneID = hive.zoneID,
-                       let zone = vm.zones.first(where: { $0.id == zoneID }) {
-                        Text("Produzione: \(String(format: "%.2f", zone.yieldPerTick * Double(hive.bees) / 100))/tick")
-                            .font(.caption.bold()).foregroundStyle(.green)
-                    } else {
-                        Text("Produzione: 0.00/tick").font(.caption.bold()).foregroundStyle(.secondary)
+                    // Regina status
+                    HStack(spacing: 8) {
+                        Text(hive.queen.statusEmoji)
+                            .font(.title3)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(hive.queen.statusDescription)
+                                .font(.caption.bold())
+                                .foregroundStyle(queenColor(hive.queen.status))
+                            Text("Età regina: \(hive.queen.age) giorni")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+
+                        // Barra salute regina
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text("Salute")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(Color.gray.opacity(0.3))
+                                        .frame(height: 6)
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(queenColor(hive.queen.status))
+                                        .frame(width: geo.size.width * hive.queen.health, height: 6)
+                                }
+                            }
+                            .frame(width: 60, height: 6)
+                        }
+                    }
+                    .padding(10)
+                    .background(queenColor(hive.queen.status).opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                    // Api e produzione
+                    HStack {
+                        Label("\(hive.bees) api", systemImage: "ant.fill")
+                            .font(.caption).foregroundStyle(.secondary)
+                        Spacer()
+                        if let zoneID = hive.zoneID,
+                           let zone = vm.zones.first(where: { $0.id == zoneID }) {
+                            let prod = zone.yieldPerTick * Double(hive.bees) / 100 * hive.productionMultiplier
+                            Text(String(format: "%.2f kg/tick", prod))
+                                .font(.caption.bold()).foregroundStyle(.green)
+                        } else {
+                            Text("0.00 kg/tick")
+                                .font(.caption.bold()).foregroundStyle(.secondary)
+                        }
                     }
 
-                    HStack(spacing: 10) {
-                        Button("Raccogli 10") { vm.collectHoney() }.buttonStyle(.borderedProminent)
-                        Button("Libera") { vm.freeHive(index: index) }.buttonStyle(.bordered)
-                        Button("+ Api (10)") { vm.upgradeHive(index: index) }.buttonStyle(.bordered)
+                    // Bottoni azione
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            Button("🍯 Raccogli") { vm.collectHoney() }
+                                .buttonStyle(.borderedProminent)
+                                .tint(.orange)
+
+                            Button("🔓 Libera") { vm.freeHive(index: index) }
+                                .buttonStyle(.bordered)
+
+                            Button("🐝 +Api (10)") { vm.upgradeHive(index: index) }
+                                .buttonStyle(.bordered)
+
+                            if hive.queen.status != .healthy {
+                                Button("👑 Nuova Regina (100)") {
+                                    vm.replaceQueen(hiveIndex: index)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .tint(queenColor(hive.queen.status))
+                            }
+                        }
                     }
                 }
                 .padding()
@@ -307,21 +369,75 @@ struct ContentView: View {
         }
     }
 
+    func queenColor(_ status: QueenStatus) -> Color {
+        switch status {
+        case .healthy: return .green
+        case .aging:   return .yellow
+        case .weak:    return .orange
+        case .dead:    return .red
+        }
+    }
+
     // MARK: - Shop
+    @State private var showShop = false
+
     var shopSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Gestione").font(.title3.bold())
-            HStack(spacing: 12) {
-                Button("Compra alveare (20)") { vm.buyHive() }.buttonStyle(.borderedProminent)
-                Button("Vendi tutto il miele") { vm.sellHoney() }.buttonStyle(.borderedProminent)
+
+            // Avviso ispezione
+            if vm.inspectionNeeded {
+                HStack {
+                    Text("🔍 Ispezione necessaria!")
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.orange)
+                    Spacer()
+                    Button("Ispeziona") { vm.performInspection() }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.orange)
+                }
+                .padding()
+                .background(Color.orange.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.orange, lineWidth: 1))
             }
-            Button(vm.fireActive ? "Fire bloom già attivo" : "Attiva incendio controllato") {
+
+            // Stagione
+            HStack {
+                Text("\(vm.season.emoji) \(vm.season.rawValue)")
+                    .font(.subheadline.bold())
+                Spacer()
+                Text(vm.season.description)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding()
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+
+            HStack(spacing: 12) {
+                Button("🛒 Shop") { showShop = true }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
+
+                Button("Compra alveare (20)") { vm.buyHive() }
+                    .buttonStyle(.borderedProminent)
+
+                Button("Vendi miele") { vm.sellHoney() }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.green)
+            }
+
+            Button(vm.fireActive ? "🔥 Fire bloom attivo" : "Attiva incendio controllato") {
                 vm.activateFire()
             }
             .buttonStyle(.bordered)
             .disabled(vm.fireActive)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .sheet(isPresented: $showShop) {
+            ShopView(vm: vm)
+        }
     }
 
     // MARK: - Log
