@@ -1,17 +1,20 @@
-//
-//  FynbosBeeApp.swift
-//  FynbosBee
-//
-//  Created by Alessio Tedone on 21.04.26.
-//
-
 import SwiftUI
 
 @main
 struct FynbosBeeApp: App {
+    @State private var showWelcome = true
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if showWelcome {
+                WelcomeView(onStart: {
+                    withAnimation(.easeInOut(duration: 0.8)) {
+                        showWelcome = false
+                    }
+                })
+            } else {
+                ContentView()
+            }
         }
     }
 }

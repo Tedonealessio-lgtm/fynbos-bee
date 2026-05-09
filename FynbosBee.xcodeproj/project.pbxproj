@@ -12,6 +12,7 @@
 		C89B15742FAD4ACD0095E4B0 /* honeycollect.m4a in Resources */ = {isa = PBXBuildFile; fileRef = C89B15732FAD4ACD0095E4B0 /* honeycollect.m4a */; };
 		C89B15762FAD4AE30095E4B0 /* eventalert.m4a in Resources */ = {isa = PBXBuildFile; fileRef = C89B15752FAD4AE30095E4B0 /* eventalert.m4a */; };
 		C89B15782FAD4AF50095E4B0 /* beesloop.m4a in Resources */ = {isa = PBXBuildFile; fileRef = C89B15772FAD4AF50095E4B0 /* beesloop.m4a */; };
+		C89B157C2FAFC38D0095E4B0 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89B157B2FAFC38D0095E4B0 /* WelcomeView.swift */; };
 		C8E59CD32F9AD520007E3DBF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C86A279B2F9AD15C009092AF /* ContentView.swift */; };
 		C8E59CD42F9AD5DC007E3DBF /* FynbosBeeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C86A279C2F9AD164009092AF /* FynbosBeeApp.swift */; };
 		C8E59CD52F9ADA78007E3DBF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C86A279A2F9AD152009092AF /* Assets.xcassets */; };
@@ -32,6 +33,7 @@
 		C89B15732FAD4ACD0095E4B0 /* honeycollect.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = honeycollect.m4a; sourceTree = "<group>"; };
 		C89B15752FAD4AE30095E4B0 /* eventalert.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = eventalert.m4a; sourceTree = "<group>"; };
 		C89B15772FAD4AF50095E4B0 /* beesloop.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = beesloop.m4a; sourceTree = "<group>"; };
+		C89B157B2FAFC38D0095E4B0 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		C8E59CDA2FAD2558007E3DBF /* Zone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Zone.swift; sourceTree = "<group>"; };
 		C8E59CDC2FAD2632007E3DBF /* Hive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hive.swift; sourceTree = "<group>"; };
 		C8E59CDE2FAD2693007E3DBF /* GameEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameEvent.swift; sourceTree = "<group>"; };
@@ -106,6 +108,7 @@
 			children = (
 				C8E59CE22FAD2AC7007E3DBF /* ZoneDetailView.swift */,
 				C89B154C2FAD35B80095E4B0 /* ZoneSceneView.swift */,
+				C89B157B2FAFC38D0095E4B0 /* WelcomeView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -198,6 +201,7 @@
 				C8E59CDD2FAD2632007E3DBF /* Hive.swift in Sources */,
 				C89B154D2FAD35B80095E4B0 /* ZoneSceneView.swift in Sources */,
 				C8E59CD42F9AD5DC007E3DBF /* FynbosBeeApp.swift in Sources */,
+				C89B157C2FAFC38D0095E4B0 /* WelcomeView.swift in Sources */,
 				C8E59CE32FAD2AC7007E3DBF /* ZoneDetailView.swift in Sources */,
 				C89B15582FAD3F740095E4B0 /* AudioManager.swift in Sources */,
 				C8E59CDF2FAD2693007E3DBF /* GameEvent.swift in Sources */,
