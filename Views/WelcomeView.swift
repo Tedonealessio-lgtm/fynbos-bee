@@ -13,17 +13,9 @@ struct WelcomeView: View {
 
     var body: some View {
         ZStack {
-            // Sfondo gradiente scuro
-            LinearGradient(
-                colors: [
-                    Color(red: 0.05, green: 0.08, blue: 0.05),
-                    Color(red: 0.12, green: 0.15, blue: 0.08),
-                    Color(red: 0.08, green: 0.10, blue: 0.05)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            // Sfondo beige
+            Color(red: 0.94, green: 0.93, blue: 0.86)
+                .ignoresSafeArea()
 
             // Particelle polline sfondo
             pollenParticles
@@ -49,21 +41,21 @@ struct WelcomeView: View {
                         .font(.system(size: 42, weight: .bold, design: .serif))
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.yellow, .orange, .yellow],
+                                colors: [.orange, Color(red: 0.8, green: 0.5, blue: 0.0), .orange],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
                         )
-                        .shadow(color: .orange.opacity(0.5), radius: 8)
+                        .shadow(color: .orange.opacity(0.3), radius: 4)
 
                     Text("Grootbos Nature Reserve")
                         .font(.system(size: 16, weight: .medium, design: .serif))
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(.black.opacity(0.6))
                         .italic()
 
                     Text("🇿🇦 South Africa")
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.5))
+                        .foregroundStyle(.black.opacity(0.4))
                 }
                 .opacity(titleOpacity)
 
@@ -88,19 +80,19 @@ struct WelcomeView: View {
                             .font(.title2)
                         Text("Inizia l'avventura")
                             .font(.title3.bold())
-                            .foregroundStyle(.black)
+                            .foregroundStyle(.white)
                     }
                     .padding(.horizontal, 40)
                     .padding(.vertical, 18)
                     .background(
                         LinearGradient(
-                            colors: [.yellow, .orange],
+                            colors: [Color(red: 0.8, green: 0.5, blue: 0.0), .orange],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
                     .clipShape(Capsule())
-                    .shadow(color: .orange.opacity(0.6), radius: 15, x: 0, y: 8)
+                    .shadow(color: .orange.opacity(0.4), radius: 12, x: 0, y: 6)
                 }
                 .opacity(buttonOpacity)
                 .scaleEffect(buttonOpacity == 1 ? 1 : 0.8)
@@ -109,7 +101,7 @@ struct WelcomeView: View {
 
                 Text("Un progetto nato a Grootbos 🌿")
                     .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.3))
+                    .foregroundStyle(.black.opacity(0.3))
                     .opacity(buttonOpacity)
 
                 Spacer()
@@ -123,7 +115,7 @@ struct WelcomeView: View {
         ZStack {
             ForEach(0..<20, id: \.self) { i in
                 Circle()
-                    .fill(Color.yellow.opacity(Double.random(in: 0.1...0.3)))
+                    .fill(Color.orange.opacity(Double.random(in: 0.1...0.25)))
                     .frame(
                         width: CGFloat.random(in: 3...10),
                         height: CGFloat.random(in: 3...10)
@@ -142,36 +134,27 @@ struct WelcomeView: View {
             Text(icon).font(.title3)
             Text(text)
                 .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.8))
+                .foregroundStyle(.black.opacity(0.7))
             Spacer()
         }
     }
 
     // MARK: - Animazioni
     func startAnimations() {
-        // Polline
         withAnimation(.easeIn(duration: 1.0)) {
             pollenOpacity = 1
         }
-
-        // Ape entra
         withAnimation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.3)) {
             beeScale = 1.0
             beeOpacity = 1
             beeOffset = 0
         }
-
-        // Glow pulsante
         withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true).delay(1.0)) {
             glowRadius = 25
         }
-
-        // Titolo
         withAnimation(.easeOut(duration: 0.8).delay(0.8)) {
             titleOpacity = 1
         }
-
-        // Bottone
         withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(1.3)) {
             buttonOpacity = 1
         }
