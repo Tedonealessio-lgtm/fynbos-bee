@@ -115,6 +115,41 @@ class GameViewModel: ObservableObject {
     ]
     @Published var inspectionNeeded: Bool = false
     @Published var lastInspectionDay: Int = 0
+    
+    static func defaultZones() -> [Zone] {
+        return [
+            Zone(id: UUID(), name: "Fynbos comune", imageName: "fynbos_common",
+                 habitatDescription: "Vegetazione fynbos aperta, ricca di piccoli arbusti nettariferi.",
+                 yieldPerTick: 1.0, isUnlocked: true, unlockCost: 0,
+                 plantName: "Restio, Leucadendron", faunaNotes: "Sunbird, Cape sugarbird",
+                 honeyType: "Wild Fynbos Honey"),
+            Zone(id: UUID(), name: "Erica irregularis", imageName: "erica_field",
+                 habitatDescription: "Area dominata da eriche in fiore.",
+                 yieldPerTick: 1.5, isUnlocked: false, unlockCost: 50,
+                 plantName: "Erica irregularis", faunaNotes: "Orange-breasted sunbird",
+                 honeyType: "Erica Honey"),
+            Zone(id: UUID(), name: "Protea", imageName: "fire_bloom",
+                 habitatDescription: "Zona dominata da protee del fynbos.",
+                 yieldPerTick: 2.0, isUnlocked: false, unlockCost: 150,
+                 plantName: "Protea cynaroides", faunaNotes: "Cape sugarbird, beetles",
+                 honeyType: "Protea Honey"),
+            Zone(id: UUID(), name: "Milkwood Forest", imageName: "fynbos_common",
+                 habitatDescription: "Foresta costiera di milkwood.",
+                 yieldPerTick: 2.5, isUnlocked: false, unlockCost: 300,
+                 plantName: "Sideroxylon inerme", faunaNotes: "Vervet monkey, bushbuck",
+                 honeyType: "Milkwood Forest Honey"),
+            Zone(id: UUID(), name: "Coastal Fynbos", imageName: "erica_field",
+                 habitatDescription: "Fynbos costiero con vista sull'oceano.",
+                 yieldPerTick: 3.0, isUnlocked: false, unlockCost: 500,
+                 plantName: "Brunia, Phylica", faunaNotes: "African penguin, whale watching",
+                 honeyType: "Coastal Reserve Honey"),
+            Zone(id: UUID(), name: "Restio Wetlands", imageName: "fire_bloom",
+                 habitatDescription: "Zone umide con restio.",
+                 yieldPerTick: 3.5, isUnlocked: false, unlockCost: 750,
+                 plantName: "Restio tetraphyllus", faunaNotes: "Cape clawless otter, frogs",
+                 honeyType: "Wetlands Reserve Honey")
+        ]
+    }
 
     var selectedZone: Zone? {
         zones.first(where: { $0.name == selectedZoneName })
@@ -126,7 +161,7 @@ class GameViewModel: ObservableObject {
     init() {
         loadGame()
 
-        Timer.publish(every: 1.5, on: .main, in: .common)
+        Timer.publish(every: 4.0, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in self?.tick() }
             .store(in: &cancellables)
@@ -165,7 +200,7 @@ class GameViewModel: ObservableObject {
                   let zone = zones.first(where: { $0.id == zoneID }),
                   zone.isUnlocked else { continue }
 
-            let baseProd = zone.yieldPerTick * Double(hives[i].bees) / 100
+            let baseProd = zone.yieldPerTick * Double(hives[i].bees) / 500
             let actualProd = baseProd * hives[i].productionMultiplier * season.productionMultiplier
             honey += actualProd
             totalHoneyProduced += actualProd
@@ -214,12 +249,12 @@ class GameViewModel: ObservableObject {
     }
 
     func updateSeason() {
-        let cycle = day % 600
+        let cycle = day % 2400
         switch cycle {
-        case 0..<150:   season = .spring
-        case 150..<300: season = .summer
-        case 300..<450: season = .autumn
-        default:        season = .winter
+        case 0..<600:    season = .spring
+        case 600..<1200: season = .summer
+        case 1200..<1800: season = .autumn
+        default:         season = .winter
         }
     }
 
@@ -310,7 +345,68 @@ class GameViewModel: ObservableObject {
     func activateFire() {
         guard !fireActive else { return }
         fireActive = true
-        addLog("Incendio controllato attivato. 🔥")
+        addLog("🔥 Incendio controllato attivato nella riserva!")
+        addLog("⚠️ Le api soffrono il fumo — produzione ridotta al 30%!")
+
+        // FASE 1 — Danno immediato (primi 20 secondi)
+        for i in hives.indices {
+            hives[i].bees = max(20, Int(Double(hives[i].bees) * 0.7))
+        }
+        addLog("🔥 Le fiamme spaventano le api — perdi 30% delle api!")
+
+        // FASE 2 — Dopo 20 secondi, fumo si dirada
+        DispatchQueue.main.asyncAfter(deadline: .now() + 20) {
+            self.addLog("💨 Il fumo si dirada... le api tornano all'alveare.")
+            self.addLog("🌱 I semi delle protee iniziano a germogliare...")
+        }
+
+        // FASE 3 — Dopo 40 secondi, prima fioritura
+        DispatchQueue.main.asyncAfter(deadline: .now() + 40) {
+            self.addLog("🌸 Le protee fioriscono! Il post-incendio porta nuova vita.")
+            self.addLog("🍯 Produzione aumentata del 80% per 30 giorni!")
+
+            // Bonus produzione su tutte le zone sbloccate
+            for i in self.zones.indices where self.zones[i].isUnlocked {
+                self.zones[i] = Zone(
+                    id: self.zones[i].id,
+                    name: self.zones[i].name + " 🔥",
+                    imageName: "fire_bloom",
+                    habitatDescription: "Post-incendio: le protee fioriscono abbondantemente. Nettare eccezionale!",
+                    yieldPerTick: self.zones[i].yieldPerTick * 1.8,
+                    isUnlocked: true,
+                    unlockCost: self.zones[i].unlockCost,
+                    plantName: "Protea post-fire, Leucadendron",
+                    faunaNotes: "Cape sugarbird in massa, sunbird",
+                    honeyType: "🔥 Fire Bloom Honey — edizione limitata"
+                )
+            }
+
+            // Zona speciale temporanea sbloccata
+            self.addLog("🆕 Zona speciale sbloccata: Protea Fire Bloom!")
+        }
+
+        // FASE 4 — Dopo 80 secondi, fine benefici
+        DispatchQueue.main.asyncAfter(deadline: .now() + 80) {
+            self.fireActive = false
+            self.addLog("🌿 Il ciclo del fuoco è completato.")
+            self.addLog("🌱 La riserva si rinnova — nuova stagione inizia.")
+
+            // Reset zone originali
+            let savedState = self.zones.map { ($0.id, $0.isUnlocked) }
+            
+            // Ricarica zone fresche
+            let freshZones = GameViewModel.defaultZones()
+            self.zones = freshZones
+            
+            // Ripristina stato sbloccato
+            for (id, unlocked) in savedState {
+                if let i = self.zones.firstIndex(where: { $0.id == id }) {
+                    self.zones[i].isUnlocked = unlocked
+                }
+            }
+            
+            self.addLog("✅ Zone ripristinate alla normalità.")
+        }
     }
 
     func zoneName(for hive: Hive) -> String {
@@ -345,21 +441,59 @@ class GameViewModel: ObservableObject {
     func resolveEvent(accept: Bool) {
         guard let event = activeEvent else { return }
         if accept {
-            applyEventImpact(event)
             switch event.type {
             case .hornet:
-                addLog("🐝 Hai difeso gli alveari dal calabrone!")
+                // Serve trappola calabrone
+                if hasEquipment(.hornetTrap) {
+                    if let i = equipment.firstIndex(where: { $0.type == .hornetTrap }) {
+                        equipment[i].quantity -= 1
+                    }
+                    addLog("🪤 Calabrone eliminato con la trappola!")
+                } else {
+                    applyEventImpact(event)
+                    addLog("❌ Nessuna trappola! Perdi il 20% delle api.")
+                }
             case .disease:
-                addLog("🦠 Hai trattato la Varroa con acido ossalico.")
+                // Serve acido ossalico
+                if hasEquipment(.oxalicAcid) {
+                    if let i = equipment.firstIndex(where: { $0.type == .oxalicAcid }) {
+                        equipment[i].quantity -= 1
+                    }
+                    for i in hives.indices { hives[i].hasDisease = false }
+                    addLog("💊 Varroa trattata con acido ossalico!")
+                } else {
+                    applyEventImpact(event)
+                    addLog("❌ Nessun acido ossalico! Produzione ridotta.")
+                }
             case .swarm:
-                addLog("🌿 Hai recuperato lo sciame con una nuova arnia.")
+                // Serve tuta apistica
+                if hasEquipment(.suit) {
+                    addLog("🦺 Tuta apistica — sciame recuperato!")
+                    for i in hives.indices {
+                        hives[i].bees = Int(Double(hives[i].bees) * 1.1)
+                    }
+                } else {
+                    applyEventImpact(event)
+                    addLog("❌ Senza tuta perdi metà dello sciame!")
+                }
             case .drought:
-                addLog("💧 Hai integrato con sciroppo di zucchero.")
+                if hasEquipment(.sugarSyrup) {
+                    if let i = equipment.firstIndex(where: { $0.type == .sugarSyrup }) {
+                        equipment[i].quantity -= 1
+                    }
+                    addLog("🍬 Sciroppo distribuito — api nutrite!")
+                } else {
+                    applyEventImpact(event)
+                    addLog("❌ Nessuno sciroppo! Api indebolite.")
+                }
             case .goodSeason:
-                addLog("☀️ Stagione eccellente! Produzione aumentata.")
+                applyEventImpact(event)
+                addLog("☀️ Stagione eccellente! +50% produzione.")
             }
         } else {
-            addLog("⚠️ Evento ignorato — conseguenze possibili.")
+            // Ignorare ha conseguenze negative
+            applyEventImpact(event)
+            addLog("⚠️ Evento ignorato — conseguenze applicate.")
         }
         activeEvent = nil
     }
@@ -387,30 +521,58 @@ class GameViewModel: ObservableObject {
 
     func performInspection() {
         guard hasEquipment(.smoker) else {
-            addLog("⚠️ Serve il fumatore per ispezionare! Compralo nello shop.")
+            addLog("⚠️ Serve il fumatore per ispezionare!")
+            activeEvent = GameEvent(
+                type: .hornet,
+                title: "⚠️ Ispezione fallita!",
+                description: "Senza fumatore le api diventano aggressive. Compra un fumatore nello shop!",
+                impact: -0.1
+            )
             return
         }
+
         lastInspectionDay = day
         inspectionNeeded = false
-        addLog("🔍 Ispezione completata! Alveari in buona salute.")
 
-        // Bonus ispezione — trova problemi nascosti
+        var found = false
         for i in hives.indices {
-            if hives[i].hasDisease && hasEquipment(.oxalicAcid) {
-                if let acidIndex = equipment.firstIndex(where: { $0.type == .oxalicAcid }) {
-                    equipment[acidIndex].quantity -= 1
+            if hives[i].hasDisease {
+                found = true
+                if hasEquipment(.oxalicAcid) {
+                    if let j = equipment.firstIndex(where: { $0.type == .oxalicAcid }) {
+                        equipment[j].quantity -= 1
+                    }
+                    hives[i].hasDisease = false
+                    addLog("💊 \(hives[i].name): Varroa trattata!")
+                } else {
+                    addLog("⚠️ \(hives[i].name): Varroa trovata! Compra acido ossalico!")
                 }
-                hives[i].hasDisease = false
-                addLog("💊 Varroa trattata in \(hives[i].name)!")
             }
-            if hives[i].hasHornet && hasEquipment(.hornetTrap) {
-                if let trapIndex = equipment.firstIndex(where: { $0.type == .hornetTrap }) {
-                    equipment[trapIndex].quantity -= 1
+            if hives[i].hasHornet {
+                found = true
+                if hasEquipment(.hornetTrap) {
+                    if let j = equipment.firstIndex(where: { $0.type == .hornetTrap }) {
+                        equipment[j].quantity -= 1
+                    }
+                    hives[i].hasHornet = false
+                    addLog("🪤 \(hives[i].name): Calabrone eliminato!")
+                } else {
+                    addLog("⚠️ \(hives[i].name): Calabrone trovato! Compra trappola!")
                 }
-                hives[i].hasHornet = false
-                addLog("🪤 Calabrone eliminato da \(hives[i].name)!")
+            }
+            if hives[i].queen.status == .weak || hives[i].queen.status == .dead {
+                found = true
+                addLog("👑 \(hives[i].name): Regina in cattive condizioni!")
             }
         }
+
+        if !found {
+            addLog("✅ Ispezione completata — tutto ok!")
+            coins += 5
+            addLog("💰 +5 monete per buona gestione!")
+        }
+
+        AudioManager.shared.playHoneyCollect()
     }
     
     func updatePlayerLevel() {
